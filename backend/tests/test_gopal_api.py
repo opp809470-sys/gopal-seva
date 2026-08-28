@@ -32,6 +32,30 @@ def test_config_returns_full_structure(s):
         assert k in d["positions"]
 
 
+# --- new: verify user-idol positions & idol asset serving ---
+def test_positions_match_new_idol_tuning(s):
+    """Bug-fix verification (iter3): garland shrunk -> {top:24,width:29}. Crown/tilak unchanged."""
+    d = s.get(f"{API}/gopal/config", timeout=15).json()
+    pos = d["positions"]
+    assert pos["crown"] == {"top": -1, "width": 32}, pos["crown"]
+    assert pos["tilak"] == {"top": 13, "width": 5}, pos["tilak"]
+    assert pos["garland"] == {"top": 24, "width": 29}, pos["garland"]
+
+
+def test_idol_variants_all_present(s):
+    d = s.get(f"{API}/gopal/config", timeout=15).json()
+    for slot in ["idol", "idol_blue", "idol_pink"]:
+        assert d["assets"].get(slot), f"{slot} is null"
+
+
+@pytest.mark.parametrize("fname", ["idol.png", "idol_blue.png", "idol_pink.png"])
+def test_serve_idol_variants(s, fname):
+    r = s.get(f"{BASE_URL}/api/files/gopal-seva/assets/{fname}", timeout=30)
+    assert r.status_code == 200, f"{fname} -> {r.status_code}"
+    assert r.headers.get("content-type", "").startswith("image/")
+    assert len(r.content) > 1000, f"{fname} body too small ({len(r.content)} bytes)"
+
+
 # --- admin verify ---
 def test_admin_verify_ok(s):
     r = s.post(f"{API}/gopal/admin/verify", json={"pin": PIN}, timeout=15)

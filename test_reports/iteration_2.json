@@ -1,0 +1,34 @@
+{
+  "summary": "Bug-fix verification for user-uploaded Gopal idol + retuned overlay positions. Backend: 17/17 pytest PASS (added 3 new tests: test_positions_match_new_idol_tuning verifies crown{-1,32}/tilak{13,5}/garland{25,42} exactly; test_idol_variants_all_present asserts idol, idol_blue, idol_pink are non-null; test_serve_idol_variants[3 params] each returns 200 image/png with real bytes >1KB). Frontend (mobile viewport 390x844): new user idol renders on temple background; tapping item-chandan places tilak on forehead (persistent); item-crown drops mukut with peacock feather onto head (stays); item-garland drops orange marigold garland around neck/chest (stays); item-dress -> dress-option-idol_blue swaps dhoti to blue (same pose), dress-option-idol_pink swaps to pink (same pose); progress dots chandan/crown/garland/dress all turn green (rgb(62,142,90)). All 3 idol asset URLs fetched in-browser return 200 image/png. Only warnings are the same non-blocking react-native-web deprecations reported in iteration_1 (shadow*/textShadow*/pointerEvents).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "styles (index.tsx / admin.tsx)", "issue": "react-native-web deprecation: 'shadow*' style props deprecated - migrate to 'boxShadow' (SHADOW.soft/card in theme.ts). Non-blocking. Same as iteration_1."},
+      {"component": "styles (index.tsx)", "issue": "react-native-web deprecation: 'textShadow*' style props deprecated - migrate to 'textShadow' (styles.title). Non-blocking. Same as iteration_1."},
+      {"component": "index.tsx", "issue": "react-native-web deprecation: props.pointerEvents deprecated - move to style.pointerEvents on <View pointerEvents='...'> (stageWrap/nightDim/hangBell etc). Non-blocking. Same as iteration_1."}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_gopal_api.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "(Optional / low priority) Migrate the RN-web deprecated style props flagged above to silence console warnings.",
+    "Positioning bug-fix is verified end-to-end - no further action needed for this issue."
+  ],
+  "critical_code_review_comments": [
+    "GET /api/gopal/config correctly returns exact user-tuned positions: crown{top:-1,width:32}, tilak{top:13,width:5}, garland{top:25,width:42}.",
+    "DropLayer/Tilak components read positions from config.positions with the correct defaults fallback (index.tsx:266-288, 514-526).",
+    "IdolLayer performs crossfade between DRESS_SLOTS (idol/idol_blue/idol_pink) so same-pose dress swap works cleanly (index.tsx:475-494)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_gopal_api.py (added test_positions_match_new_idol_tuning, test_idol_variants_all_present, test_serve_idol_variants[3])",
+    "/app/test_reports/pytest/pytest_results.xml (regenerated - 17 passed)"
+  ],
+  "success_rate": {"backend": "100% (17/17)", "frontend": "100% of tested flows"},
+  "seed_data_creation": "None new. Existing progress test doc from iteration_1 still uses TEST- prefix. No production data written.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "User-idol positioning bug is fixed and verified. Crown/tilak/garland overlays sit ON the idol (head/forehead/neck). Idol dress swap (blue/pink) retains the same pose. Do NOT overwrite the idol/idol_blue/idol_pink/flower asset slots via upload tests - the current values are the tuned user assets. localStorage-based seva state is per-session; run the full 9-tap flow in one session to trigger completion modal.",
+  "rca_of_issue": "N/A - bug fix verified working. crown, tilak, garland overlays now render on the correct anatomy of the user's uploaded idol (head, forehead, chest respectively) and dress variants swap without pose mismatch."
+}

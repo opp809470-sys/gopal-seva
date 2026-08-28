@@ -1,0 +1,33 @@
+{
+  "summary": "Garland-resize bug-fix verified end-to-end. Backend 17/17 pytest PASS - updated test_positions_match_new_idol_tuning to assert new garland={top:24,width:29} while confirming crown={-1,32} and tilak={13,5} unchanged; idol/idol_blue/idol_pink still non-null and each /api/files/... returns 200 image bytes >1KB (not overwritten). Frontend (mobile 390x844): GET /api/gopal/config from browser returns positions.garland={top:24,width:29}; tapping item-chandan then item-crown then item-garland places tilak on forehead, mukut on head, and a visibly smaller marigold garland around the neck/upper-chest; overlay persists after 1.5s wait. Measured garland overlay bounding box on stage is 75.9x75.9 px (previously ~108px at width:42), i.e. garland is ~30% smaller as intended. Progress dots for chandan/crown/garland all rgb(62,142,90) (green). Same non-blocking react-native-web deprecation warnings as prior iterations (shadow*/textShadow*/pointerEvents).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": [
+      {"component": "styles (index.tsx / admin.tsx)", "issue": "react-native-web deprecation: 'shadow*' style props deprecated - migrate to 'boxShadow'. Non-blocking. Same as iterations 1-2."},
+      {"component": "styles (index.tsx)", "issue": "react-native-web deprecation: 'textShadow*' style props deprecated - migrate to 'textShadow'. Non-blocking. Same as iterations 1-2."},
+      {"component": "index.tsx", "issue": "react-native-web deprecation: props.pointerEvents deprecated - move to style.pointerEvents. Non-blocking. Same as iterations 1-2."}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_gopal_api.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "None for this bug - garland resize is confirmed working. Optional: address the RN-web deprecated style props (long-standing, non-blocking)."
+  ],
+  "critical_code_review_comments": [
+    "DEFAULT_POSITIONS.garland updated to {top:24,width:29} in server.py:44-50 and returned correctly by GET /api/gopal/config.",
+    "DropLayer for garland reads positions.garland with fallback default (index.tsx:281); rendered box is proportionally smaller at 75.9px width on 390px stage.",
+    "Idol/idol_blue/idol_pink slots were NOT overwritten - upload test used the 'flower' slot only, as instructed."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_gopal_api.py (updated expected garland to {top:24,width:29})",
+    "/app/test_reports/pytest/pytest_results.xml (regenerated - 17 passed)"
+  ],
+  "success_rate": {"backend": "100% (17/17)", "frontend": "100% of tested flows"},
+  "seed_data_creation": "None new. Idol/dress slots untouched. Upload test wrote only to 'flower' slot as before.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Garland is now smaller ({top:24,width:29}) and correctly sits around the neck/upper-chest of the user's uploaded Gopal idol. Do NOT re-run the AI seed and do NOT overwrite idol/idol_blue/idol_pink/flower slots via upload tests. Seva progress state is per-browser-session on web; complete the 9 taps in one continuous session for the completion modal.",
+  "rca_of_issue": "N/A - user-reported 'garland too big' fixed by shrinking width 42->29 and moving top 25->24. Verified via /api/gopal/config response and rendered overlay bounding box (~30% narrower)."
+}

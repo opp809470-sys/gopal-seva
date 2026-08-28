@@ -42,10 +42,10 @@ IMAGE_SLOTS = [
 SOUND_SLOTS = ["bell", "water", "aarti", "lullaby", "bg_music"]
 
 DEFAULT_POSITIONS = {
-    "crown": {"top": 3, "width": 30},
-    "tilak": {"top": 20, "width": 5},
-    "garland": {"top": 31, "width": 44},
-    "plate": {"top": 80, "width": 38},
+    "crown": {"top": -1, "width": 32},
+    "tilak": {"top": 13, "width": 5},
+    "garland": {"top": 24, "width": 29},
+    "plate": {"top": 82, "width": 38},
     "bed": {"top": 52, "width": 92},
 }
 
