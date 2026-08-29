@@ -168,6 +168,17 @@ export default function Admin() {
           {seed?.status === "running" && <ActivityIndicator color="#fff" style={{ marginLeft: 8 }} />}
         </Pressable>
 
+        {/* Adjust Gopal & ornaments */}
+        <Pressable
+          testID="open-adjust-btn"
+          onPress={() => router.push({ pathname: "/adjust", params: { pin } })}
+          style={styles.adjustBtn}
+        >
+          <MaterialCommunityIcons name="tune-variant" size={20} color={COLORS.maroon} />
+          <Text style={styles.adjustText}>{t("editor_open")}</Text>
+          <MaterialCommunityIcons name="chevron-right" size={22} color={COLORS.maroon} />
+        </Pressable>
+
         {/* Images */}
         <Text style={styles.section}>{t("images")}</Text>
         <View style={styles.grid}>
@@ -242,8 +253,10 @@ const styles = StyleSheet.create({
   h1: { fontSize: 24, fontWeight: "800", color: COLORS.maroon },
   ctrlBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#fff", alignItems: "center", justifyContent: "center", ...SHADOW.soft },
 
-  seedBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: SPACING.xs, backgroundColor: COLORS.maroon, paddingVertical: SPACING.md, borderRadius: RADIUS.md, marginBottom: SPACING.lg },
+  seedBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: SPACING.xs, backgroundColor: COLORS.maroon, paddingVertical: SPACING.md, borderRadius: RADIUS.md, marginBottom: SPACING.md },
   seedText: { color: "#fff", fontWeight: "700", fontSize: 15 },
+  adjustBtn: { flexDirection: "row", alignItems: "center", gap: SPACING.xs, backgroundColor: COLORS.goldSoft, paddingVertical: SPACING.md, paddingHorizontal: SPACING.md, borderRadius: RADIUS.md, marginBottom: SPACING.lg },
+  adjustText: { flex: 1, color: COLORS.maroon, fontWeight: "800", fontSize: 15 },
 
   section: { fontSize: 16, fontWeight: "800", color: COLORS.saffronDark, marginTop: SPACING.md, marginBottom: SPACING.sm },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm },

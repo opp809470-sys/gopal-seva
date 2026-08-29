@@ -42,6 +42,7 @@ IMAGE_SLOTS = [
 SOUND_SLOTS = ["bell", "water", "aarti", "lullaby", "bg_music"]
 
 DEFAULT_POSITIONS = {
+    "idol": {"width": 67, "height": 50, "offsetY": 0},
     "crown": {"top": -1, "width": 32},
     "tilak": {"top": 13, "width": 5},
     "garland": {"top": 24, "width": 29},
@@ -77,6 +78,11 @@ async def get_config_doc() -> dict:
     if "positions" not in doc:
         doc["positions"] = DEFAULT_POSITIONS
         changed = True
+    else:
+        for k, v in DEFAULT_POSITIONS.items():
+            if k not in doc["positions"]:
+                doc["positions"][k] = v
+                changed = True
     if changed:
         await db.gopal_config.update_one({"_id": "config"}, {"$set": doc})
     doc.pop("_id", None)

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Modal,
   Pressable,
@@ -15,12 +15,10 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import Animated, {
-  Easing,
   FadeIn,
   FadeOut,
   useAnimatedStyle,
   useSharedValue,
-  withDelay,
   withRepeat,
   withSequence,
   withTiming,
@@ -33,6 +31,7 @@ import { storage } from "@/src/utils/storage";
 import { COLORS, RADIUS, SHADOW, SPACING } from "@/src/theme";
 import { BHOG_SLOTS, DRESS_SLOTS, ITEMS, SEQUENCE, type ItemId } from "@/src/gopalMeta";
 import { FallingFlowers, OrbitingDiya, Sparkles, WaterSnan } from "@/src/components/animations";
+import { GopalStage } from "@/src/components/GopalStage";
 
 const BACKEND = process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -199,10 +198,10 @@ export default function GopalSeva() {
   const nextStep = SEQUENCE.find((s) => !state.done.includes(s));
 
   // ---- stage geometry ----
-  const stageH = Math.min(SH * 0.5, 460);
-  const stageW = stageH * 0.62;
   const pos = config?.positions || {};
-  const P = (k: string, d: { top: number; width: number }) => pos[k] || d;
+  const idolPos = pos.idol || { width: 67, height: 50, offsetY: 0 };
+  const stageW = SW * (idolPos.width / 100);
+  const stageH = SH * (idolPos.height / 100);
 
   const bellStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${bellRot.value}deg` }] }));
 
@@ -248,63 +247,8 @@ export default function GopalSeva() {
       </Animated.View>
 
       {/* ---------- STAGE ---------- */}
-      <View style={styles.stageWrap} pointerEvents="none">
-        <View style={{ width: stageW, height: stageH }}>
-          {/* Bed (sleep) behind idol */}
-          {state.sleeping && assetUrl("bed") && (
-            <Animated.View entering={FadeIn} style={[styles.overlay, { top: `${P("bed", { top: 52, width: 92 }).top}%`, width: `${P("bed", { top: 52, width: 92 }).width}%` }]}>
-              <Image source={{ uri: assetUrl("bed")! }} style={styles.fillImg} contentFit="contain" />
-            </Animated.View>
-          )}
-
-          {/* Idol layers (crossfade dress) */}
-          {DRESS_SLOTS.map((slot) => (
-            <IdolLayer key={slot} uri={assetUrl(slot)} active={state.dress === slot} />
-          ))}
-
-          {/* Tilak */}
-          {state.tilak && <Tilak topPct={P("tilak", { top: 20, width: 5 }).top} />}
-
-          {/* Crown */}
-          {state.crown && (
-            <DropLayer topPct={P("crown", { top: 3, width: 30 }).top} widthPct={P("crown", { top: 3, width: 30 }).width}>
-              {assetUrl("crown") ? (
-                <Image source={{ uri: assetUrl("crown")! }} style={styles.fillImg} contentFit="contain" />
-              ) : (
-                <MaterialCommunityIcons name="crown" size={54} color={COLORS.gold} />
-              )}
-            </DropLayer>
-          )}
-
-          {/* Garland */}
-          {state.garland && (
-            <DropLayer topPct={P("garland", { top: 31, width: 44 }).top} widthPct={P("garland", { top: 31, width: 44 }).width}>
-              {assetUrl("garland") ? (
-                <Image source={{ uri: assetUrl("garland")! }} style={styles.fillImg} contentFit="contain" />
-              ) : (
-                <MaterialCommunityIcons name="flower-poppy" size={70} color={COLORS.saffron} />
-              )}
-            </DropLayer>
-          )}
-
-          {/* Flower pile at feet */}
-          {state.flowers > 0 && <FlowerPile count={state.flowers} uri={assetUrl("flower")} />}
-
-          {/* Bhog plate */}
-          {state.bhog && (
-            <Animated.View
-              entering={FadeIn.duration(400)}
-              style={[styles.overlay, { top: `${P("plate", { top: 80, width: 38 }).top}%`, width: `${P("plate", { top: 80, width: 38 }).width}%`, aspectRatio: 1.4 }]}
-            >
-              {assetUrl("plate") && (
-                <Image source={{ uri: assetUrl("plate")! }} style={StyleSheet.absoluteFill} contentFit="contain" />
-              )}
-              {assetUrl(state.bhog) && (
-                <Image source={{ uri: assetUrl(state.bhog)! }} style={styles.bhogFood} contentFit="contain" />
-              )}
-            </Animated.View>
-          )}
-        </View>
+      <View style={[styles.stageWrap, { transform: [{ translateY: (idolPos.offsetY / 100) * SH }] }]} pointerEvents="none">
+        <GopalStage W={stageW} H={stageH} positions={pos} state={state} assetUrl={assetUrl} animateOrnaments />
 
         {/* Transient effects centered over stage */}
         <View style={[styles.effectLayer, { width: stageW, height: stageH }]}>
@@ -472,85 +416,6 @@ export default function GopalSeva() {
 // ---------------------------------------------------------------------------
 // Sub components
 // ---------------------------------------------------------------------------
-function IdolLayer({ uri, active }: { uri: string | null; active: boolean }) {
-  const opacity = useSharedValue(active ? 1 : 0);
-  useEffect(() => {
-    opacity.value = withTiming(active ? 1 : 0, { duration: 500 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active]);
-  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
-  if (!uri) {
-    return active ? (
-      <View style={[StyleSheet.absoluteFill, styles.center]} pointerEvents="none">
-        <MaterialCommunityIcons name="account-child-circle" size={120} color={COLORS.saffronDark} />
-      </View>
-    ) : null;
-  }
-  return (
-    <Animated.View style={[StyleSheet.absoluteFill, style]} pointerEvents="none">
-      <Image source={{ uri }} style={StyleSheet.absoluteFill} contentFit="contain" />
-    </Animated.View>
-  );
-}
-
-function DropLayer({ topPct, widthPct, children }: { topPct: number; widthPct: number; children: React.ReactNode }) {
-  const ty = useSharedValue(-70);
-  const opacity = useSharedValue(0);
-  useEffect(() => {
-    ty.value = withSequence(withTiming(6, { duration: 420, easing: Easing.out(Easing.back(1.4)) }), withTiming(0, { duration: 160 }));
-    opacity.value = withTiming(1, { duration: 300 });
-  }, []);
-  const style = useAnimatedStyle(() => ({ opacity: opacity.value, transform: [{ translateY: ty.value }] }));
-  return (
-    <Animated.View
-      style={[styles.overlay, { top: `${topPct}%`, width: `${widthPct}%`, aspectRatio: 1 }, style]}
-      pointerEvents="none"
-    >
-      {children}
-    </Animated.View>
-  );
-}
-
-function Tilak({ topPct }: { topPct: number }) {
-  const scale = useSharedValue(0);
-  useEffect(() => {
-    scale.value = withSequence(withTiming(1.3, { duration: 260 }), withTiming(1, { duration: 160 }));
-  }, []);
-  const style = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
-  return (
-    <Animated.View style={[styles.tilakWrap, { top: `${topPct}%` }, style]} pointerEvents="none">
-      <View style={styles.tilakU} />
-      <View style={styles.tilakCenter} />
-    </Animated.View>
-  );
-}
-
-function FlowerPile({ count, uri }: { count: number; uri: string | null }) {
-  const items = Array.from({ length: Math.min(count, 18) });
-  return (
-    <View style={styles.pileWrap} pointerEvents="none">
-      {items.map((_, i) => {
-        const left = 10 + ((i * 41) % 80);
-        const bottom = (i % 3) * 8;
-        const size = 16 + (i % 3) * 5;
-        return (
-          <Animated.View
-            key={i}
-            entering={FadeIn.delay(i * 25)}
-            style={{ position: "absolute", left: `${left}%`, bottom, width: size, height: size }}
-          >
-            {uri ? (
-              <Image source={{ uri }} style={{ width: size, height: size }} contentFit="contain" />
-            ) : (
-              <MaterialCommunityIcons name="flower" size={size} color="#EF5DA8" />
-            )}
-          </Animated.View>
-        );
-      })}
-    </View>
-  );
-}
-
 function CtrlBtn({ icon, active, onPress, testID }: { icon: string; active: boolean; onPress: () => void; testID: string }) {
   return (
     <Pressable testID={testID} onPress={onPress} style={[styles.ctrlBtn, active && styles.ctrlBtnActive]}>

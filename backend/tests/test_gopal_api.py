@@ -42,6 +42,86 @@ def test_positions_match_new_idol_tuning(s):
     assert pos["garland"] == {"top": 24, "width": 29}, pos["garland"]
 
 
+# --- iter4: new idol positions & PUT /gopal/config/positions ---
+def test_config_positions_includes_idol(s):
+    """GET /api/gopal/config now includes positions.idol {width,height,offsetY}."""
+    d = s.get(f"{API}/gopal/config", timeout=15).json()
+    assert "idol" in d["positions"], d["positions"].keys()
+    idol = d["positions"]["idol"]
+    for k in ["width", "height", "offsetY"]:
+        assert k in idol, f"idol missing {k}"
+        assert isinstance(idol[k], (int, float))
+
+
+def test_put_positions_requires_admin_pin(s):
+    """PUT without X-Admin-Pin returns 401."""
+    body = {"positions": {"idol": {"width": 67, "height": 50, "offsetY": 0}}}
+    r = s.put(f"{API}/gopal/config/positions", json=body, timeout=15)
+    assert r.status_code == 401
+
+
+def test_put_positions_wrong_pin(s):
+    body = {"positions": {"idol": {"width": 67, "height": 50, "offsetY": 0}}}
+    r = s.put(
+        f"{API}/gopal/config/positions",
+        json=body,
+        headers={"X-Admin-Pin": "0000"},
+        timeout=15,
+    )
+    assert r.status_code == 401
+
+
+def test_put_positions_updates_and_persists(s):
+    """PUT with correct pin overwrites positions; GET reflects changes; restore known-good afterwards."""
+    known_good = {
+        "idol": {"width": 67, "height": 50, "offsetY": 0},
+        "crown": {"top": -1, "width": 32},
+        "tilak": {"top": 13, "width": 5},
+        "garland": {"top": 24, "width": 29},
+        "plate": {"top": 82, "width": 38},
+        "bed": {"top": 52, "width": 92},
+    }
+    # apply a modified set
+    modified = {
+        "idol": {"width": 70, "height": 52, "offsetY": 2},
+        "crown": {"top": 0, "width": 33},
+        "tilak": {"top": 14, "width": 6},
+        "garland": {"top": 25, "width": 30},
+        "plate": {"top": 82, "width": 38},
+        "bed": {"top": 52, "width": 92},
+    }
+    try:
+        r = s.put(
+            f"{API}/gopal/config/positions",
+            json={"positions": modified},
+            headers={"X-Admin-Pin": PIN},
+            timeout=15,
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["positions"]["idol"]["width"] == 70
+        assert body["positions"]["crown"]["top"] == 0
+        assert body["positions"]["garland"]["width"] == 30
+
+        # verify persistence via GET
+        cfg = s.get(f"{API}/gopal/config", timeout=15).json()
+        assert cfg["positions"]["idol"] == {"width": 70, "height": 52, "offsetY": 2}
+        assert cfg["positions"]["tilak"] == {"top": 14, "width": 6}
+    finally:
+        # ALWAYS restore known-good values
+        r = s.put(
+            f"{API}/gopal/config/positions",
+            json={"positions": known_good},
+            headers={"X-Admin-Pin": PIN},
+            timeout=15,
+        )
+        assert r.status_code == 200
+        cfg = s.get(f"{API}/gopal/config", timeout=15).json()
+        assert cfg["positions"]["idol"] == known_good["idol"]
+        assert cfg["positions"]["crown"] == known_good["crown"]
+        assert cfg["positions"]["garland"] == known_good["garland"]
+
+
 def test_idol_variants_all_present(s):
     d = s.get(f"{API}/gopal/config", timeout=15).json()
     for slot in ["idol", "idol_blue", "idol_pink"]:

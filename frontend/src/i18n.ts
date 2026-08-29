@@ -59,6 +59,22 @@ const bn: Dict = {
   upload: "আপলোড",
   replace: "পরিবর্তন",
   back: "পিছনে",
+  // editor
+  editor_open: "গোপাল ও অলঙ্কার সাজান",
+  editor_title: "গোপাল ও অলঙ্কার",
+  ed_gopal: "গোপালের আকার",
+  ed_width: "প্রস্থ",
+  ed_height: "উচ্চতা",
+  ed_vertical: "উপর/নিচ",
+  ed_mukut: "মুকুট",
+  ed_tilak: "তিলক",
+  ed_mala: "মালা",
+  ed_top: "অবস্থান",
+  ed_size: "আকার",
+  ed_save: "সংরক্ষণ করুন",
+  ed_saved: "সংরক্ষিত হয়েছে",
+  ed_reset: "ডিফল্ট",
+  ed_hint: "বোতাম দিয়ে সাজান, নিচে প্রিভিউ দেখুন",
 };
 
 const hi: Dict = {
@@ -107,6 +123,21 @@ const hi: Dict = {
   upload: "अपलोड",
   replace: "बदलें",
   back: "पीछे",
+  editor_open: "गोपाल व आभूषण सजाएँ",
+  editor_title: "गोपाल व आभूषण",
+  ed_gopal: "गोपाल का आकार",
+  ed_width: "चौड़ाई",
+  ed_height: "ऊँचाई",
+  ed_vertical: "ऊपर/नीचे",
+  ed_mukut: "मुकुट",
+  ed_tilak: "तिलक",
+  ed_mala: "माला",
+  ed_top: "स्थान",
+  ed_size: "आकार",
+  ed_save: "सहेजें",
+  ed_saved: "सहेजा गया",
+  ed_reset: "डिफ़ॉल्ट",
+  ed_hint: "बटनों से सजाएँ, नीचे प्रिव्यू देखें",
 };
 
 const en: Dict = {
@@ -155,6 +186,21 @@ const en: Dict = {
   upload: "Upload",
   replace: "Replace",
   back: "Back",
+  editor_open: "Adjust Gopal & Ornaments",
+  editor_title: "Gopal & Ornaments",
+  ed_gopal: "Gopal Size",
+  ed_width: "Width",
+  ed_height: "Height",
+  ed_vertical: "Up / Down",
+  ed_mukut: "Mukut",
+  ed_tilak: "Tilak",
+  ed_mala: "Mala",
+  ed_top: "Position",
+  ed_size: "Size",
+  ed_save: "Save",
+  ed_saved: "Saved",
+  ed_reset: "Defaults",
+  ed_hint: "Use the buttons to adjust, see the live preview below",
 };
 
 export const DICTS: Record<Lang, Dict> = { bn, hi, en };
