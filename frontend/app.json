@@ -8,6 +8,7 @@
     "scheme": "frontend",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.emergent.dailysevaritual.grj3nb",
@@ -15,6 +16,7 @@
         "NSPhotoLibraryUsageDescription": "Upload puja images for Gopal Seva"
       }
     },
+
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
@@ -23,11 +25,13 @@
       "edgeToEdgeEnabled": true,
       "package": "com.emergent.dailysevaritual.grj3nb"
     },
+
     "web": {
       "bundler": "metro",
       "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
+
     "plugins": [
       "expo-router",
       [
@@ -41,8 +45,10 @@
       ],
       "expo-audio"
     ],
+
     "experiments": {
-      "typedRoutes": true
+      "typedRoutes": true,
+      "baseUrl": "/gopal-seva"
     }
   }
 }
